@@ -24,7 +24,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                withCredentials([file(credentialsId: 'vault-pass', variable: 'VAULT_FILE')]) {
+                withCredentials([file(credentialsId: 'vault.pass', variable: 'VAULT_FILE')]) {
                     sh '''
                     ansible-playbook patching.yaml \
                     -i inventory.ini \
