@@ -1,0 +1,8 @@
+---
+- name: Apply Monthy patch to the server
+  hosts: all
+  gather_facts: true
+  become: yes
+  
+  roles:
+    - Monthly_Patch

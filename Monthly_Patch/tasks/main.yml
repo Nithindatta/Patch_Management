@@ -1,0 +1,5 @@
+---
+# tasks file for Monthly_Patch
+
+- name: Patch the Server
+  ansible.builtin.import_tasks: patch.yaml

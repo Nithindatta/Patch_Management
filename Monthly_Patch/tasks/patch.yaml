@@ -1,0 +1,16 @@
+---
+- name: Patch the server
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+
+- name: Check the SSH service
+  ansible.builtin.service_facts:
+
+- name: Display the status
+  debug:
+    msg: SSH is "{{ ansible_facts.services['ssh.service'].state }}"
+
+- name: Display all services
+  debug:
+    var: ansible_facts.services
