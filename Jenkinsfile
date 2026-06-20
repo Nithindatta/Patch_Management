@@ -18,10 +18,16 @@ pipeline {
 
         stage('Validate Ansible Setup') {
             steps {
-                sh '''
-                ansible --version
-                ansible-inventory -i $INVENTORY --list
-                '''
+                withCredentials([file(credentialsId: 'vault.pass', variable: 'VAULT_FILE')]) {
+                    sh '''
+                    ansible --version
+
+                    # FIX: always pass vault because inventory may contain vaulted vars
+                    ANSIBLE_STDOUT_CALLBACK=default \
+                    ansible-inventory -i $INVENTORY --list \
+                    --vault-password-file $VAULT_FILE
+                    '''
+                }
             }
         }
 
@@ -29,7 +35,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'vault.pass', variable: 'VAULT_FILE')]) {
                     sh '''
-                    ANSIBLE_STDOUT_CALLBACK=default ansible-playbook $PLAYBOOK -i $INVENTORY \
+                    ANSIBLE_STDOUT_CALLBACK=default \
+                    ansible-playbook $PLAYBOOK -i $INVENTORY \
                     --syntax-check \
                     --vault-password-file $VAULT_FILE
                     '''
@@ -39,9 +46,13 @@ pipeline {
 
         stage('Pre Check (Ping Test)') {
             steps {
-                sh '''
-                ansible all -i $INVENTORY -m ping
-                '''
+                withCredentials([file(credentialsId: 'vault.pass', variable: 'VAULT_FILE')]) {
+                    sh '''
+                    ANSIBLE_STDOUT_CALLBACK=default \
+                    ansible all -i $INVENTORY -m ping \
+                    --vault-password-file $VAULT_FILE
+                    '''
+                }
             }
         }
 
@@ -49,7 +60,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'vault.pass', variable: 'VAULT_FILE')]) {
                     sh '''
-                    ANSIBLE_STDOUT_CALLBACK=default ansible-playbook $PLAYBOOK -i $INVENTORY \
+                    ANSIBLE_STDOUT_CALLBACK=default \
+                    ansible-playbook $PLAYBOOK -i $INVENTORY \
                     --vault-password-file $VAULT_FILE -vv
                     '''
                 }
@@ -67,11 +79,11 @@ pipeline {
 
     post {
         success {
-            echo "Patching Completed Successfully"
+            echo "✅ Patching Completed Successfully"
         }
 
         failure {
-            echo "Patching Failed - Check Logs"
+            echo "❌ Patching Failed - Check Logs"
         }
     }
 }
