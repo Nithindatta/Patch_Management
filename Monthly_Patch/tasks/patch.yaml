@@ -9,7 +9,7 @@
 
 - name: Display the status
   debug:
-    msg: SSH is "{{ ansible_facts.services['ssh.service'].state }}"
+    msg: SSH is "{{ ansible_facts.services['sshd.service'].state }}"
 
 - name: Display all services
   debug:
