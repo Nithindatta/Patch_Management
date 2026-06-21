@@ -124,8 +124,9 @@ pipeline {
                     -m shell \
                     -a "uptime" \
                     -u $SSH_USER \
-                    --private-key $SSH_KEY
-		    --vault-password-file $VAULT_FILE
+                    --private-key $SSH_KEY \
+		    --vault-password-file $VAULT_FILE \
+		    -vv
                     '''
                 }
             }
